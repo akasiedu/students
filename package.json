@@ -1,0 +1,27 @@
+{
+  "name": "Students",
+  "author": "TUTs",
+  "description": "Api for Students",
+  "dependencies": {
+    "mongodb": "^2.1.0",
+    "mongoose": "^4.3.1",
+    "restify": "^3.0.3",
+    "swagger-restify-express": "^0.2.1",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5",
+    "should": "^7.1.0",
+    "supertest": "^1.0.1"
+  },
+  "script": {
+    "test": "mocha test"
+  },
+  "version": "0.0.0",
+  "engines": {
+    "node": "0.12.7",
+    "npm": "2.11.3"
+  },
+  "main": "index.js"
+}
