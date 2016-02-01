@@ -9,5 +9,6 @@ var studentSchema = new Schema({
   date: { type: Date, default: Date.now },
 });
 
+var Students = mongoose.model('Students', studentSchema);
 
-var Student = mongoose.model('Students', studentSchema);
+exports.Students = Students;

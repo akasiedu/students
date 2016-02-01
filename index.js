@@ -2,8 +2,9 @@ var restify = require('restify');
 var server = restify.createServer();
 var _ = require('underscore');
 var sre = require('swagger-restify-express');
-var Student = require('./models/students').Student;
-
+var Student = require('./models/students').Students;
+var Mongo = require('./mongo').Mongoose;
+var ObjectId = require('mongoose').Types.ObjectId
 // var students = [
 // {id: 1, name: "Kofi", age: 29, gender: 'M'},
 // {id: 2, name: "Peter", age: 23, gender: 'M'},
@@ -13,9 +14,14 @@ var Student = require('./models/students').Student;
 // {id: 6, name: "Cheryl", age: 24, gender: 'F'},
 // {id: 7, name: "Fiifi", age: 26, gender: 'M'}
 // ]
+String.prototype.toObjectId = function(){
+	console.log("sdfsd", new ObjectId (this));
+	return new ObjectId (this.toString());
+}
+Mongo.init()
+server.use(restify.bodyParser());
 
 server.post('/student', function(req, res, next){
-	console.log(req.params);
 	var studentName = req.params.name;
 	var studentAge = req.params.age;
 	var studentGender=req.params.gender;
@@ -23,27 +29,59 @@ server.post('/student', function(req, res, next){
 	if((typeof studentName !== "undefined" && studentName !== null) && 
 		(typeof studentAge !== "undefined" && studentAge !== null) &&
 		(typeof studentGender !== "undefined" && studentGender !== null)){
-		var student = new Student({name : studentName, age: studentAge, gender: studentGender});
-		student.save();
+	
+		var student = new Student({name: studentName, age: studentAge, gender: studentGender});
+		
+		student.save(function(err, doc){
+			if(err){
+				res.send(400, "Wrong params set");
+			} else{
+				res.send(200, {data: doc, message: "Student created successfully"});
+			}
+		});
 	} else{
 		res.send(400, "Wrong params set");
 	}
 })
 
 server.get('/student', function(req, res, next){
-	res.send(200, {data: students});
-})
-
-
+	Student.find({}, function(err, students){
+		if (err){
+			res.send(500);
+		} else {
+			res.send(200, {message: "All students", data: {length: students.length, students: students}});
+		}
+	});
+});
 
 server.get('/student/:id', function(req, res, next){
-	var query = [req.params.id];
-	var selected_has = _(query).object(query);
-	var matches = _(students).filter(function(p) {
-		return selected_has[p.id]
-	});
+	var id = req.params.id;
+	if(id){
+		// var selected_has = _(query).object(query);
+		// var matches = _(students).filter(function(p) {
+		// 	return selected_has[p.id]
+		// });
 
-	res.send(200, {student: matches[0]});
+		console.log(new ObjectId (id));
+		Student.findOne({_id: id}, function(err, student){
+			if (err){
+				res.send(500);
+			} else{
+				if (student){
+					res.send(200, {
+						message: "Student Retrieved", 
+						student: student
+					});
+				} else {
+					res.send(200, {message: "No student found"});
+				}
+			}
+		});
+
+		res.send(200, {student: matches[0]});
+	} else{
+		res.send(404, "no id specified");
+	}
 })
 
 
